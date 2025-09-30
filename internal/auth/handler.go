@@ -46,9 +46,20 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 返回响应
+	// 设置HttpOnly Cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true, // 生产环境设为true（HTTPS）
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   3600, // 1小时过期
+	})
+
+	// 返回响应（可选：也可以不返回token，只使用Cookie）
 	response := LoginResponse{
-		Token: token,
+		Token: token, // 如果使用纯Cookie方式，可以移除这个字段
 		User: user.UserResponse{
 			ID:        authenticatedUser.ID,
 			Username:  authenticatedUser.Username,

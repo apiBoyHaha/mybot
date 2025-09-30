@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -16,7 +17,11 @@ type Claims struct {
 var jwtSecret = []byte("your-secret-key")
 
 func GenerateJWT(userID int, username, role string) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
+	// 生产环境使用更短的过期时间（如15分钟）
+	expirationTime := time.Now().Add(15 * time.Minute)
+	if os.Getenv("ENVIRONMENT") == "development" {
+		expirationTime = time.Now().Add(24 * time.Hour) // 开发环境可延长
+	}
 
 	claims := &Claims{
 		UserID:   userID,
@@ -24,6 +29,7 @@ func GenerateJWT(userID int, username, role string) (string, error) {
 		Role:     role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
+			Issuer:    "mybot-app", // 添加签发者
 		},
 	}
 

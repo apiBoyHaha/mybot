@@ -7,6 +7,37 @@ import (
 	"strings"
 )
 
+// RoleBasedAuthMiddleware 角色权限中间件
+func RoleBasedAuthMiddleware(allowedRoles []string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// 从上下文中获取用户信息
+			claims, ok := r.Context().Value("user").(*utils.Claims)
+			if !ok {
+				http.Error(w, "用户信息未找到", http.StatusUnauthorized)
+				return
+			}
+
+			// 检查用户角色是否在允许的角色列表中
+			hasPermission := false
+			for _, role := range allowedRoles {
+				if claims.Role == role {
+					hasPermission = true
+					break
+				}
+			}
+
+			if !hasPermission {
+				http.Error(w, "权限不足", http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// JWTAuthMiddleware 现有的JWT认证中间件
 func JWTAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := extractTokenFromHeader(r)
