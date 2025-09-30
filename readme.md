@@ -1,7 +1,7 @@
 # MyBot - JWT认证API服务
 
-基于Go语言开发的JWT Token认证API服务，提供用户注册、登录和受保护API访问功能。
-
+基于Go语言开发的JWT Token认证API服务，提供用户注册、登录和受保护API访问功能。具体认证流程如下：
+    用户登录 → 验证凭证 → 生成Token → 返回Token → 后续请求携带Token → 验证Token → 访问资源
 ## 项目结构
 
 ```
