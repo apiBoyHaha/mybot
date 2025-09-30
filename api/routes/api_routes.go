@@ -8,6 +8,12 @@ import (
 	"net/http"
 )
 
+// 1. 用户访问 /api/protected/data
+// 2. 请求首先被 /api/protected/ 前缀匹配
+// 3. 认证中间件验证Token
+// 4. 如果认证通过，请求转发到 protectedMux
+// 5. protectedMux 根据具体路径调用 protectedDataHandler
+
 func SetupRoutes(db *sql.DB, cfg *config.Config) http.Handler {
 	mux := http.NewServeMux()
 
